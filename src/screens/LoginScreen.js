@@ -12,19 +12,19 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
 
-const LoginScreen = () => {
+// THÊM: Nhận props onLoginSuccess từ App.js truyền xuống
+const LoginScreen = ({ onLoginSuccess }) => {
   const [secureText, setSecureText] = useState(true);
 
   return (
     <SafeAreaView style={styles.container}>
       {/* 1. Logo Cà rốt VÀNG */}
       <View style={styles.logoContainer}>
-        {/* Đã cập nhật màu icon cà rốt sang màu vàng đậm (#F3603F) giống hình ảnh */}
         <MaterialCommunityIcons name="carrot" size={60} color="#F3603F" />
       </View>
 
       <View style={styles.content}>
-        {/* Tiêu đề (Giữ nguyên lỗi typo 'Loging' như thiết kế) */}
+        {/* Tiêu đề */}
         <Text style={styles.title}>Loging</Text>
         <Text style={styles.subtitle}>Enter your emails and password</Text>
 
@@ -48,7 +48,6 @@ const LoginScreen = () => {
               secureTextEntry={secureText}
               placeholder="••••••••"
             />
-            {/* Nút ẩn/hiện mật khẩu */}
             <TouchableOpacity onPress={() => setSecureText(!secureText)}>
               <Ionicons 
                 name={secureText ? "eye-off-outline" : "eye-outline"} 
@@ -65,12 +64,20 @@ const LoginScreen = () => {
           <Text style={styles.forgotText}>Forgot Password?</Text>
         </TouchableOpacity>
 
-        {/* 5. Nút Log In MÀU XANH */}
-        <TouchableOpacity style={styles.loginButton}>
+        {/* 5. Nút Log In - Đã sửa để bấm được vào Home */}
+        <TouchableOpacity 
+          style={styles.loginButton}
+          activeOpacity={0.8}
+          onPress={() => {
+            if (onLoginSuccess) {
+              onLoginSuccess(); // Kích hoạt lệnh chuyển trang trong App.js
+            }
+          }}
+        >
           <Text style={styles.loginText}>Log In</Text>
         </TouchableOpacity>
 
-        {/* 6. Chuyển sang Sign Up (Giữ nguyên lỗi typo 'Singup' như thiết kế) */}
+        {/* 6. Chuyển sang Sign Up */}
         <View style={styles.signupContainer}>
           <Text style={styles.noAccountText}>Don’t have an account? </Text>
           <TouchableOpacity>
