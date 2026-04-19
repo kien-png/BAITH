@@ -13,7 +13,14 @@ import LoginScreen from './src/screens/LoginScreen';
 import HomeScreen from './src/screens/HomeScreen'; 
 import ExploreScreen from './src/screens/ExploreScreen'; 
 import ProductDetailScreen from './src/screens/ProductDetailScreen';
-import BeveragesScreen from './src/screens/BeveragesScreen'; // <<-- PHẢI THÊM DÒNG NÀY
+import BeveragesScreen from './src/screens/BeveragesScreen'; 
+import DairyEggScreen from './src/screens/Dairy_egg'; 
+import FilterScreen from './src/screens/FilterScreen';
+import FavouriteScreen from './src/screens/FavouriteScreen';
+
+// --- 1. SỬA TẠI ĐÂY: Import trang Cart của bạn vào ---
+// Lưu ý: Kiểm tra tên file của bạn là 'CartScreen' hay 'CartScreens' để import cho đúng đường dẫn nhé
+import CartScreen from './src/screens/CartScreen'; 
 
 const { width } = Dimensions.get('window');
 const Stack = createStackNavigator();
@@ -25,7 +32,7 @@ function MainTabs() {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#53B175', // Màu xanh chuẩn
+        tabBarActiveTintColor: '#53B175',
         tabBarInactiveTintColor: '#181725',
         tabBarStyle: { height: 70, paddingBottom: 10 },
       }}
@@ -40,16 +47,19 @@ function MainTabs() {
         component={ExploreScreen} 
         options={{ tabBarIcon: ({color}) => <Feather name="search" size={24} color={color} /> }}
       />
+      
+      {/* --- 2. SỬA TẠI ĐÂY: Đổi CartScreens thành CartScreen (khớp với lệnh import ở trên) --- */}
       <Tab.Screen 
         name="Cart" 
-        component={HomeScreen} 
+        component={CartScreen} 
         options={{ tabBarIcon: ({color}) => <Ionicons name="cart-outline" size={24} color={color} /> }}
       />
+      
       <Tab.Screen 
-        name="Favourite" 
-        component={HomeScreen} 
-        options={{ tabBarIcon: ({color}) => <Ionicons name="heart-outline" size={24} color={color} /> }}
-      />
+  name="Favourite" 
+  component={FavouriteScreen} // Thay HomeScreen bằng FavouriteScreen
+  options={{ tabBarIcon: ({color}) => <Ionicons name="heart-outline" size={24} color={color} /> }}
+/>
       <Tab.Screen 
         name="Account" 
         component={HomeScreen} 
@@ -89,6 +99,8 @@ export default function App() {
         <Stack.Screen name="MainApp" component={MainTabs} />
         <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
         <Stack.Screen name="Beverages" component={BeveragesScreen} />
+        <Stack.Screen name="DairyEgg" component={DairyEggScreen} />
+        <Stack.Screen name="Filter" component={FilterScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
