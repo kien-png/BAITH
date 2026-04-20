@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,6 @@ import {
   Alert,
 } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { removeUser, clearCart, clearOrders } from '../services/storageService';
 
 const AccountScreen = ({ navigation }) => {
   const handleLogout = async () => {
@@ -20,19 +19,11 @@ const AccountScreen = ({ navigation }) => {
         { text: 'Cancel', onPress: () => {}, style: 'cancel' },
         {
           text: 'Logout',
-          onPress: async () => {
-            try {
-              await removeUser();
-              await clearCart();
-              await clearOrders();
-              navigation.reset({
-                index: 0,
-                routes: [{ name: 'Intro' }],
-              });
-            } catch (error) {
-              console.error('Logout error:', error);
-              Alert.alert('Error', 'Failed to logout');
-            }
+          onPress: () => {
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'Intro' }],
+            });
           },
           style: 'destructive',
         },

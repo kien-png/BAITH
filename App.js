@@ -4,8 +4,6 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons, Feather } from '@expo/vector-icons';
-import { useEffect, useState } from 'react';
-import { getUser } from './src/services/storageService';
 
 // --- IMPORT CÁC TRANG ---
 import SplashScreen from './src/screens/SplashScreen'; 
@@ -99,48 +97,15 @@ const IntroFlow = ({ navigation }) => {
 };
 
 export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    checkLogin();
-  }, []);
-
-  const checkLogin = async () => {
-    try {
-      const user = await getUser();
-      if (user) {
-        setIsLoggedIn(true);
-      }
-    } catch (error) {
-      console.error('Error checking login:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  if (isLoading) {
-    return null;
-  }
-
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {isLoggedIn ? (
-          <>
-            <Stack.Screen name="MainApp" component={MainTabs} />
-            <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
-            <Stack.Screen name="Beverages" component={BeveragesScreen} />
-            <Stack.Screen name="DairyEgg" component={DairyEggScreen} />
-            <Stack.Screen name="Filter" component={FilterScreen} />
-          </>
-        ) : (
-          <Stack.Screen 
-            name="Intro" 
-            component={IntroFlow}
-            options={{ animationEnabled: false }}
-          />
-        )}
+        <Stack.Screen name="Intro" component={IntroFlow} />
+        <Stack.Screen name="MainApp" component={MainTabs} />
+        <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
+        <Stack.Screen name="Beverages" component={BeveragesScreen} />
+        <Stack.Screen name="DairyEgg" component={DairyEggScreen} />
+        <Stack.Screen name="Filter" component={FilterScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

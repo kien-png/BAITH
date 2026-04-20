@@ -9,7 +9,6 @@ import {
   Dimensions 
 } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { saveUser } from '../services/storageService';
 
 const { width } = Dimensions.get('window');
 
@@ -75,17 +74,13 @@ const LoginScreen = ({ onLoginSuccess }) => {
         <TouchableOpacity 
           style={styles.loginButton}
           activeOpacity={0.8}
-          onPress={async () => {
+          onPress={() => {
             if (email && password) {
-              try {
-                const userData = { email, password };
-                await saveUser(userData);
-                if (onLoginSuccess) {
-                  onLoginSuccess();
-                }
-              } catch (error) {
-                console.error('Login error:', error);
+              if (onLoginSuccess) {
+                onLoginSuccess();
               }
+            } else {
+              alert('Please enter email and password');
             }
           }}
         >

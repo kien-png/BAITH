@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -9,40 +9,9 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { getOrders, clearOrders } from '../services/storageService';
 
 const OrdersScreen = ({ navigation }) => {
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      loadOrders();
-    });
-    return unsubscribe;
-  }, [navigation]);
-
-  const loadOrders = async () => {
-    try {
-      setLoading(true);
-      const savedOrders = await getOrders();
-      setOrders(savedOrders.reverse());
-    } catch (error) {
-      console.error('Error loading orders:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleClearOrders = async () => {
-    try {
-      await clearOrders();
-      setOrders([]);
-      alert('All orders cleared');
-    } catch (error) {
-      console.error('Error clearing orders:', error);
-    }
-  };
 
   const OrderItem = ({ item }) => (
     <View style={styles.orderCard}>
@@ -81,16 +50,6 @@ const OrdersScreen = ({ navigation }) => {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>My Orders</Text>
       </View>
-
-      {orders.length > 0 && (
-        <TouchableOpacity
-          style={styles.clearButton}
-          onPress={handleClearOrders}
-        >
-          <Ionicons name="trash-outline" size={18} color="white" />
-          <Text style={styles.clearButtonText}>Clear All</Text>
-        </TouchableOpacity>
-      )}
 
       <FlatList
         data={orders}
