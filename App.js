@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, ScrollView, Dimensions } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -25,7 +25,7 @@ const { width } = Dimensions.get('window');
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-// 1. Cấu trúc Tab Bar
+// ===== TAB =====
 function MainTabs() {
   return (
     <Tab.Navigator
@@ -46,25 +46,21 @@ function MainTabs() {
         component={ExploreScreen} 
         options={{ tabBarIcon: ({color}) => <Feather name="search" size={24} color={color} /> }}
       />
-      
       <Tab.Screen 
         name="Cart" 
         component={CartScreen} 
         options={{ tabBarIcon: ({color}) => <Ionicons name="cart-outline" size={24} color={color} /> }}
       />
-      
       <Tab.Screen 
         name="Orders" 
         component={OrdersScreen} 
         options={{ tabBarIcon: ({color}) => <Ionicons name="bag-outline" size={24} color={color} /> }}
       />
-
       <Tab.Screen 
         name="Favourite" 
         component={FavouriteScreen}
         options={{ tabBarIcon: ({color}) => <Ionicons name="heart-outline" size={24} color={color} /> }}
       />
-
       <Tab.Screen 
         name="Account" 
         component={AccountScreen} 
@@ -74,9 +70,10 @@ function MainTabs() {
   );
 }
 
-// 2. Luồng cuộn trang (IntroFlow)
+// ===== INTRO FLOW =====
 const IntroFlow = ({ navigation }) => {
   const scrollRef = React.useRef(null);
+
   const scrollToPage = (pageIndex) => {
     scrollRef.current?.scrollTo({ x: pageIndex * width, animated: true });
   };
@@ -91,11 +88,14 @@ const IntroFlow = ({ navigation }) => {
       <View style={{ width }}><SplashScreen onNext={() => scrollToPage(1)} /></View>
       <View style={{ width }}><OnboardingScreen onNext={() => scrollToPage(2)} /></View>
       <View style={{ width }}><SignInScreen onNext={() => scrollToPage(3)} /></View>
-      <View style={{ width }}><LoginScreen onLoginSuccess={() => navigation.replace('MainApp')} /></View>
+      <View style={{ width }}>
+        <LoginScreen onLoginSuccess={() => navigation.replace('MainApp')} />
+      </View>
     </ScrollView>
   );
 };
 
+// ===== APP =====
 export default function App() {
   return (
     <NavigationContainer>

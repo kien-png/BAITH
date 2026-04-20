@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -7,36 +7,63 @@ import {
   FlatList, 
   Image, 
   TouchableOpacity, 
-  StatusBar,
-  Dimensions
+  StatusBar
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-// IMPORT DỮ LIỆU TỪ FILE DATA CHUNG
-import { INITIAL_CART_DATA } from '../data/data'; 
+// 🔥 IMPORT STORAGE
+import { getCart, saveCart, clearCart } from '../services/storageService';
 
-const CartScreen = () => {
-  const [cartItems, setCartItems] = useState(INITIAL_CART_DATA);
+const CartScreen = ({ navigation }) => {
+  const [cartItems, setCartItems] = useState([]);
 
-  // Hàm tăng/giảm số lượng sản phẩm
-  const updateQuantity = (id, delta) => {
-    setCartItems(prev => prev.map(item => 
-      item.id === id ? { ...item, amount: Math.max(1, item.amount + delta) } : item
-    ));
+  // 🔥 LOAD CART KHI MỞ APP
+  useEffect(() => {
+    const loadCart = async () => {
+      const data = await getCart();
+      setCartItems(data);
+    };
+    loadCart();
+  }, []);
+
+  // 🔥 UPDATE + LƯU
+  const updateQuantity = async (id, delta) => {
+    let newCart = cartItems.map(item => 
+      item.id === id 
+        ? { ...item, amount: Math.max(1, (item.amount || 1) + delta) } 
+        : item
+    );
+
+    setCartItems(newCart);
+    await saveCart(newCart);
   };
 
-  // Hàm xóa sản phẩm khỏi giỏ hàng
-  const removeItem = (id) => {
-    setCartItems(prev => prev.filter(item => item.id !== id));
+  // 🔥 XÓA + LƯU
+  const removeItem = async (id) => {
+    let newCart = cartItems.filter(item => item.id !== id);
+
+    setCartItems(newCart);
+    await saveCart(newCart);
   };
 
-  // Tính tổng giá trị giỏ hàng
+  // 🔥 CHECKOUT (CHỈ CLEAR CART - ORDER LÀM Ở SCREEN KHÁC)
+  const handleCheckout = async () => {
+    if (cartItems.length === 0) {
+      alert("Giỏ hàng trống");
+      return;
+    }
+
+    alert("Checkout thành công (demo)");
+    await clearCart();
+    setCartItems([]);
+  };
+
+  // 🔥 TỔNG TIỀN
   const totalPrice = cartItems.reduce((sum, item) => {
     const price = parseFloat(item.price);
     return sum + (price * (item.amount || 1));
   }, 0).toFixed(2);
 
-  // Component cho từng dòng sản phẩm
   const CartItem = ({ item }) => (
     <View style={styles.cartItem}>
       <Image source={item.img} style={styles.itemImage} resizeMode="contain" />
@@ -49,7 +76,7 @@ const CartScreen = () => {
           </TouchableOpacity>
         </View>
         
-        <Text style={styles.itemWeight}>{item.weight}, Price</Text>
+        <Text style={styles.itemWeight}>{item.weight}</Text>
         
         <View style={styles.itemFooter}>
           <View style={styles.quantityContainer}>
@@ -60,7 +87,7 @@ const CartScreen = () => {
               <Ionicons name="remove" size={24} color="#B3B3B3" />
             </TouchableOpacity>
             
-            <Text style={styles.quantityText}>{item.amount}</Text>
+            <Text style={styles.quantityText}>{item.amount || 1}</Text>
             
             <TouchableOpacity 
               style={styles.quantityButton} 
@@ -70,7 +97,9 @@ const CartScreen = () => {
             </TouchableOpacity>
           </View>
           
-          <Text style={styles.itemPrice}>${(parseFloat(item.price) * item.amount).toFixed(2)}</Text>
+          <Text style={styles.itemPrice}>
+            ${(parseFloat(item.price) * (item.amount || 1)).toFixed(2)}
+          </Text>
         </View>
       </View>
     </View>
@@ -98,10 +127,12 @@ const CartScreen = () => {
         }
       />
 
-      {/* FOOTER VỚI NÚT CHECKOUT ĐÃ CÂN GIỮA */}
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.checkoutButton} activeOpacity={0.9}>
-          {/* View trống để cân bằng trọng lượng với phần giá tiền bên phải */}
+        <TouchableOpacity 
+          style={styles.checkoutButton} 
+          activeOpacity={0.9}
+          onPress={handleCheckout}
+        >
           <View style={styles.dummySpace} /> 
           
           <Text style={styles.checkoutText}>Go to Checkout</Text>
@@ -146,7 +177,6 @@ const styles = StyleSheet.create({
   quantityText: { fontSize: 16, fontWeight: 'bold', marginHorizontal: 15, color: '#181725' },
   itemPrice: { fontSize: 18, fontWeight: 'bold', color: '#181725' },
   
-  // FOOTER & CHECKOUT BUTTON
   footer: { 
     position: 'absolute', 
     bottom: 0, 
@@ -168,7 +198,7 @@ const styles = StyleSheet.create({
     fontSize: 18, 
     fontWeight: '600', 
     textAlign: 'center',
-    flex: 1 // Chiếm không gian giữa để căn giữa chữ
+    flex: 1 
   },
   priceTag: { 
     backgroundColor: '#489E67', 
@@ -179,7 +209,7 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   priceTagText: { color: 'white', fontSize: 14, fontWeight: 'bold' },
-  dummySpace: { width: 70 }, // Phải bằng với minWidth của priceTag để chữ ở giữa tuyệt đối
+  dummySpace: { width: 70 },
   
   emptyContainer: { marginTop: 100, alignItems: 'center' },
   emptyText: { fontSize: 16, color: '#7C7C7C' }

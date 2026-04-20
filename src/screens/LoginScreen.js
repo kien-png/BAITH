@@ -10,27 +10,44 @@ import {
 } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
+// 🔥 THÊM DÒNG NÀY
+import { saveUser } from '../services/storageService';
+
 const { width } = Dimensions.get('window');
 
-// THÊM: Nhận props onLoginSuccess từ App.js truyền xuống
 const LoginScreen = ({ onLoginSuccess }) => {
   const [secureText, setSecureText] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  // 🔥 THÊM HANDLE LOGIN
+  const handleLogin = async () => {
+    if (email && password) {
+      const user = {
+        email: email,
+      };
+
+      // 🔥 LƯU USER → QUAN TRỌNG NHẤT
+      await saveUser(user);
+
+      if (onLoginSuccess) {
+        onLoginSuccess();
+      }
+    } else {
+      alert('Please enter email and password');
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-      {/* 1. Logo Cà rốt VÀNG */}
       <View style={styles.logoContainer}>
         <MaterialCommunityIcons name="carrot" size={60} color="#F3603F" />
       </View>
 
       <View style={styles.content}>
-        {/* Tiêu đề */}
         <Text style={styles.title}>Loging</Text>
         <Text style={styles.subtitle}>Enter your emails and password</Text>
 
-        {/* 2. Ô nhập Email */}
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Email</Text>
           <TextInput 
@@ -43,7 +60,6 @@ const LoginScreen = ({ onLoginSuccess }) => {
           />
         </View>
 
-        {/* 3. Ô nhập Password */}
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Password</Text>
           <View style={styles.passwordContainer}>
@@ -65,29 +81,19 @@ const LoginScreen = ({ onLoginSuccess }) => {
           <View style={styles.line} />
         </View>
 
-        {/* 4. Quên mật khẩu */}
         <TouchableOpacity style={styles.forgotBtn}>
           <Text style={styles.forgotText}>Forgot Password?</Text>
         </TouchableOpacity>
 
-        {/* 5. Nút Log In - Đã sửa để bấm được vào Home */}
+        {/* 🔥 SỬA Ở ĐÂY */}
         <TouchableOpacity 
           style={styles.loginButton}
           activeOpacity={0.8}
-          onPress={() => {
-            if (email && password) {
-              if (onLoginSuccess) {
-                onLoginSuccess();
-              }
-            } else {
-              alert('Please enter email and password');
-            }
-          }}
+          onPress={handleLogin}
         >
           <Text style={styles.loginText}>Log In</Text>
         </TouchableOpacity>
 
-        {/* 6. Chuyển sang Sign Up */}
         <View style={styles.signupContainer}>
           <Text style={styles.noAccountText}>Don’t have an account? </Text>
           <TouchableOpacity>
