@@ -9,12 +9,15 @@ import {
   Dimensions 
 } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { saveUser } from '../services/storageService';
 
 const { width } = Dimensions.get('window');
 
 // THÊM: Nhận props onLoginSuccess từ App.js truyền xuống
 const LoginScreen = ({ onLoginSuccess }) => {
   const [secureText, setSecureText] = useState(true);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   return (
     <SafeAreaView style={styles.container}>
@@ -36,6 +39,8 @@ const LoginScreen = ({ onLoginSuccess }) => {
             placeholder="imshuvo97@gmail.com"
             keyboardType="email-address"
             autoCapitalize="none"
+            value={email}
+            onChangeText={setEmail}
           />
         </View>
 
@@ -47,6 +52,8 @@ const LoginScreen = ({ onLoginSuccess }) => {
               style={[styles.input, { flex: 1, borderBottomWidth: 0 }]}
               secureTextEntry={secureText}
               placeholder="••••••••"
+              value={password}
+              onChangeText={setPassword}
             />
             <TouchableOpacity onPress={() => setSecureText(!secureText)}>
               <Ionicons 
@@ -68,9 +75,17 @@ const LoginScreen = ({ onLoginSuccess }) => {
         <TouchableOpacity 
           style={styles.loginButton}
           activeOpacity={0.8}
-          onPress={() => {
-            if (onLoginSuccess) {
-              onLoginSuccess(); // Kích hoạt lệnh chuyển trang trong App.js
+          onPress={async () => {
+            if (email && password) {
+              try {
+                const userData = { email, password };
+                await saveUser(userData);
+                if (onLoginSuccess) {
+                  onLoginSuccess();
+                }
+              } catch (error) {
+                console.error('Login error:', error);
+              }
             }
           }}
         >

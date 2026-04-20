@@ -4,6 +4,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons, Feather } from '@expo/vector-icons';
+import { useEffect, useState } from 'react';
+import { getUser } from './src/services/storageService';
 
 // --- IMPORT CÁC TRANG ---
 import SplashScreen from './src/screens/SplashScreen'; 
@@ -17,10 +19,9 @@ import BeveragesScreen from './src/screens/BeveragesScreen';
 import DairyEggScreen from './src/screens/Dairy_egg'; 
 import FilterScreen from './src/screens/FilterScreen';
 import FavouriteScreen from './src/screens/FavouriteScreen';
-
-// --- 1. SỬA TẠI ĐÂY: Import trang Cart của bạn vào ---
-// Lưu ý: Kiểm tra tên file của bạn là 'CartScreen' hay 'CartScreens' để import cho đúng đường dẫn nhé
-import CartScreen from './src/screens/CartScreen'; 
+import CartScreen from './src/screens/CartScreen';
+import OrdersScreen from './src/screens/OrdersScreen';
+import AccountScreen from './src/screens/AccountScreen'; 
 
 const { width } = Dimensions.get('window');
 const Stack = createStackNavigator();
@@ -48,7 +49,6 @@ function MainTabs() {
         options={{ tabBarIcon: ({color}) => <Feather name="search" size={24} color={color} /> }}
       />
       
-      {/* --- 2. SỬA TẠI ĐÂY: Đổi CartScreens thành CartScreen (khớp với lệnh import ở trên) --- */}
       <Tab.Screen 
         name="Cart" 
         component={CartScreen} 
@@ -56,13 +56,20 @@ function MainTabs() {
       />
       
       <Tab.Screen 
-  name="Favourite" 
-  component={FavouriteScreen} // Thay HomeScreen bằng FavouriteScreen
-  options={{ tabBarIcon: ({color}) => <Ionicons name="heart-outline" size={24} color={color} /> }}
-/>
+        name="Orders" 
+        component={OrdersScreen} 
+        options={{ tabBarIcon: ({color}) => <Ionicons name="bag-outline" size={24} color={color} /> }}
+      />
+
+      <Tab.Screen 
+        name="Favourite" 
+        component={FavouriteScreen}
+        options={{ tabBarIcon: ({color}) => <Ionicons name="heart-outline" size={24} color={color} /> }}
+      />
+
       <Tab.Screen 
         name="Account" 
-        component={HomeScreen} 
+        component={AccountScreen} 
         options={{ tabBarIcon: ({color}) => <Feather name="user" size={24} color={color} /> }}
       />
     </Tab.Navigator>
@@ -92,15 +99,48 @@ const IntroFlow = ({ navigation }) => {
 };
 
 export default function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    checkLogin();
+  }, []);
+
+  const checkLogin = async () => {
+    try {
+      const user = await getUser();
+      if (user) {
+        setIsLoggedIn(true);
+      }
+    } catch (error) {
+      console.error('Error checking login:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isLoading) {
+    return null;
+  }
+
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Intro" component={IntroFlow} />
-        <Stack.Screen name="MainApp" component={MainTabs} />
-        <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
-        <Stack.Screen name="Beverages" component={BeveragesScreen} />
-        <Stack.Screen name="DairyEgg" component={DairyEggScreen} />
-        <Stack.Screen name="Filter" component={FilterScreen} />
+        {isLoggedIn ? (
+          <>
+            <Stack.Screen name="MainApp" component={MainTabs} />
+            <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
+            <Stack.Screen name="Beverages" component={BeveragesScreen} />
+            <Stack.Screen name="DairyEgg" component={DairyEggScreen} />
+            <Stack.Screen name="Filter" component={FilterScreen} />
+          </>
+        ) : (
+          <Stack.Screen 
+            name="Intro" 
+            component={IntroFlow}
+            options={{ animationEnabled: false }}
+          />
+        )}
       </Stack.Navigator>
     </NavigationContainer>
   );

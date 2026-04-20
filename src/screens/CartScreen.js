@@ -11,23 +11,44 @@ import {
   Dimensions
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useEffect } from 'react';
 
 // IMPORT DỮ LIỆU TỪ FILE DATA CHUNG
-import { INITIAL_CART_DATA } from '../data/data'; 
+import { INITIAL_CART_DATA } from '../data/data';
+import { saveCart, getCart, saveOrder, clearCart } from '../services/storageService'; 
 
 const CartScreen = () => {
   const [cartItems, setCartItems] = useState(INITIAL_CART_DATA);
 
+  useEffect(() => {
+    loadCart();
+  }, []);
+
+  const loadCart = async () => {
+    try {
+      const savedCart = await getCart();
+      if (savedCart.length > 0) {
+        setCartItems(savedCart);
+      }
+    } catch (error) {
+      console.error('Error loading cart:', error);
+    }
+  };
+
   // Hàm tăng/giảm số lượng sản phẩm
-  const updateQuantity = (id, delta) => {
-    setCartItems(prev => prev.map(item => 
+  const updateQuantity = async (id, delta) => {
+    const updated = cartItems.map(item => 
       item.id === id ? { ...item, amount: Math.max(1, item.amount + delta) } : item
-    ));
+    );
+    setCartItems(updated);
+    await saveCart(updated);
   };
 
   // Hàm xóa sản phẩm khỏi giỏ hàng
-  const removeItem = (id) => {
-    setCartItems(prev => prev.filter(item => item.id !== id));
+  const removeItem = async (id) => {
+    const updated = cartItems.filter(item => item.id !== id);
+    setCartItems(updated);
+    await saveCart(updated);
   };
 
   // Tính tổng giá trị giỏ hàng
@@ -100,7 +121,23 @@ const CartScreen = () => {
 
       {/* FOOTER VỚI NÚT CHECKOUT ĐÃ CÂN GIỮA */}
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.checkoutButton} activeOpacity={0.9}>
+        <TouchableOpacity 
+          style={styles.checkoutButton} 
+          activeOpacity={0.9}
+          onPress={async () => {
+            try {
+              await saveOrder({
+                items: cartItems,
+                total: totalPrice,
+              });
+              await clearCart();
+              setCartItems([]);
+              alert('Order placed successfully!');
+            } catch (error) {
+              console.error('Checkout error:', error);
+            }
+          }}
+        >
           {/* View trống để cân bằng trọng lượng với phần giá tiền bên phải */}
           <View style={styles.dummySpace} /> 
           
